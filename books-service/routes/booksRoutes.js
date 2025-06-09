@@ -1,0 +1,70 @@
+const express = require('express');
+const router = express.Router();
+const Book = require('../models/books');
+const { authorizeRoles } = require('../middleware/auth');
+const authenticateJWT = require ('../middleware/auth');
+
+//buat akses service harus login
+router.use(authenticateJWT);
+
+//get buku untuk user dan admin
+router.get('/', async (req, res) => {
+    try {
+        const books = await Book.find();
+        res.json(books);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+//user dan admin get buku berdasarkan id
+router.get('/:id', async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.id);
+        if (!book) {
+            return res.status(404).json({ message: 'Buku tidak ditemukan' });
+        }
+        res.json(book);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+//post buku untuk admin
+router.post('/', authorizeRoles('admin'), async (req, res) => {
+    try {
+        const book = new Book(req.body);
+        await book.save();
+        res.status(201).json(book);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+//update buku untuk admin
+router.put('/:id', authorizeRoles('admin'), async (req, res) => {
+    try {
+        const updateBook = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updateBook) {
+            return res.status(404).json({ message: 'Buku tidak ditemukan' });
+        }
+        res.json({ message: 'Buku berhasil diperbarui', updateBook});
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+//delete buku untuk admin
+router.delete('/:id', authorizeRoles('admin'), async (req, res) => {
+    try {
+        const deleteBook = await Book.findByIdAndDelete(req.params.id);
+        if (!deleteBook) {
+            return res.status(404).json({ message: 'Buku tidak ditemukan' });
+        }
+        res.json({ message: 'Buku berhasil dihapus' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+module.exports = router;
