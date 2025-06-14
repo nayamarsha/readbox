@@ -22,6 +22,10 @@ const TransactionSchema = new mongoose.Schema({
         type: String,
         enum: ['borrow', 'return','renew'], 
         required: true
+    },
+    details: {
+        type: String,
+        required: true
     }
 }, {
     timestamps: true
