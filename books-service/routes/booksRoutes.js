@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Book = require('../models/books');
-const { authorizeRoles } = require('../middleware/auth');
-const authenticateJWT = require ('../middleware/auth');
+const authorizeRoles  = require('../../auth-service/middlewares/authorizeRoles');
+const verifyToken = require ('../../auth-service/middlewares/verifyToken');
 
 //buat akses service harus login
-router.use(authenticateJWT);
+router.use(verifyToken);
 
 //get buku untuk user dan admin
 router.get('/', async (req, res) => {
