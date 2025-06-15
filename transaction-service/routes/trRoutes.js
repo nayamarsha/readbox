@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
-const { authorizeRoles } = require('../middleware/auth');
-const authenticateJWT = require('../middleware/auth');
+const authorizeRoles  = require('../../auth-service/middlewares/authorizeRoles');
+const verifyToken = require ('../../auth-service/middlewares/verifyToken');
 
 // Login untuk mengakses routes (jwt)
-router.use(authenticateJWT);
+router.use(verifyToken);
 
 // GET semua transaksi (admin & user)
-router.get('/', async (req, res) => {
+router.get('/get', async (req, res) => {
     try {
         const transactions = await Transaction.find();
         res.json(transactions);
@@ -31,7 +31,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST transaksi (admin & user)
-router.post('/', async (req, res) => {
+router.post('/post', async (req, res) => {
     try {
         const transaction = new Transaction(req.body);
         await transaction.save();

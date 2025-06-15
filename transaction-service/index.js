@@ -4,7 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -20,8 +20,8 @@ mongoose.connect(process.env.MONGO_URI, {
 app.use(cors());
 app.use(express.json());
 
-const booksRoutes = require('./routes/trRoutes');
-app.use('/books', booksRoutes);
+const transactionRoutes = require('./routes/trRoutes');
+app.use('/transaction', transactionRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
