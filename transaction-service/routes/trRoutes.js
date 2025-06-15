@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Transaction = require('../models/Transaction');
+const Transaction = require('../models/transaction');
+const Books = require('../../books-service/models/books');
 const authorizeRoles  = require('../../auth-service/middlewares/authorizeRoles');
 const verifyToken = require ('../../auth-service/middlewares/verifyToken');
 
@@ -33,6 +34,13 @@ router.get('/:id', async (req, res) => {
 // POST transaksi (admin & user)
 router.post('/post', async (req, res) => {
     try {
+        // Cek apakah buku tersedia untuk dipinjam
+        if (req.body.type === 'pinjam') {
+            const available = await isBookAvailable(req.body.title);
+            if (!available) {
+                return res.status(400).json({ message: 'Buku tidak tersedia.' });
+            }
+        }
         const transaction = new Transaction(req.body);
         await transaction.save();
         res.status(201).json(transaction);
