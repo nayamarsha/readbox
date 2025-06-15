@@ -5,6 +5,11 @@ const Books = require('../../books-service/models/books');
 const authorizeRoles  = require('../../auth-service/middlewares/authorizeRoles');
 const verifyToken = require ('../../auth-service/middlewares/verifyToken');
 
+// Middleware untuk mengecek ketersediaan buku
+async function isBookAvailable(title) {
+    const book = await Books.findOne({ title });
+    return book && book.isAvailable;
+}
 // Login untuk mengakses routes (jwt)
 router.use(verifyToken);
 
