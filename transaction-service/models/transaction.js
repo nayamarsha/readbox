@@ -14,7 +14,11 @@ const TransactionSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    date: {
+    borrowDate: {
+        type: Date,
+        required: true
+    },
+    returnDate: {
         type: Date,
         required: true
     },
@@ -22,12 +26,9 @@ const TransactionSchema = new mongoose.Schema({
         type: String,
         enum: ['borrow', 'return','renew'], 
         required: true
-    },
-    details: {
-        type: String,
-        required: true
     }
-}, {
+}, 
+{
     timestamps: true
 });
 
