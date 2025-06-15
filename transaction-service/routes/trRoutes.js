@@ -48,6 +48,20 @@ router.post('/post', async (req, res) => {
         }
         const transaction = new Transaction(req.body);
         await transaction.save();
+
+         if (req.body.type === 'pinjam') {
+            await Books.findOneAndUpdate(
+                { title: req.body.title },
+                { isAvailable: false }
+            );
+        }
+
+        if (req.body.type === 'pengembalian') {
+        await Books.findOneAndUpdate(
+        { title: req.body.title },
+        { isAvailable: true }
+        );
+    }
         res.status(201).json(transaction);
     } catch (error) {
         res.status(500).json({ message: error.message });
