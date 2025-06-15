@@ -15,7 +15,8 @@ router.get('/', authorizeRoles('admin'), async (req, res) => {
         id: 1,
         username: 1,
         email: 1,
-        role: 1
+        role: 1,
+        createdAt: 1
     });
         res.json(accounts);
     } catch (error) {
@@ -23,43 +24,81 @@ router.get('/', authorizeRoles('admin'), async (req, res) => {
     }
 });
 
-// GET satu akun by id (admin atau user sendiri)
-router.get('/:id', async (req, res) => {
+// GET satu akun by username (hanya admin atau user itu sendiri)
+router.get('/:username', verifyToken, async (req, res) => {
     try {
-        const { id } = req.params;
+        const { username } = req.params;
 
-        // Admin boleh lihat semua, user hanya dirinya sendiri
-        if (req.user.role !== 'admin' && req.user.id !== id) {
+        // Cek hak akses: jika bukan admin dan bukan user yang sama → tolak
+        if (req.user.role !== 'admin' && req.user.username !== username) {
             return res.status(403).json({ message: 'Akses ditolak' });
         }
 
-        const account = await Account.findById(id);
+        // Cari akun berdasarkan username dan tampilkan field tertentu saja
+        const account = await Account.findOne(
+            { username },
+            {
+                _id: 0,          
+                id: 1,
+                username: 1,
+                email: 1,
+                role: 1,
+                createdAt: 1  
+            }
+        );
+
+        // Jika tidak ditemukan
         if (!account) {
             return res.status(404).json({ message: 'Akun tidak ditemukan' });
         }
 
+        // Kirim data akun
         res.json(account);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// PUT update akun (admin atau user sendiri)
-router.put('/:id', async (req, res) => {
+// PUT update akun by username (admin atau user sendiri)
+router.put('/:username', verifyToken, async (req, res) => {
     try {
-        const { id } = req.params;
+        const { username } = req.params;
 
-        if (req.user.role !== 'admin' && req.user.id !== id) {
-            return res.status(403).json({ message: 'Akses ditolak' });
-        }
-
-        const updated = await Account.findByIdAndUpdate(id, req.body, { new: true });
-
-        if (!updated) {
+        // Cari akun target berdasarkan username
+        const targetAccount = await Account.findOne({ username });
+        if (!targetAccount) {
             return res.status(404).json({ message: 'Akun tidak ditemukan' });
         }
 
-        res.json({ message: 'Akun berhasil diperbarui', updated });
+        // Admin boleh update akun siapa saja
+        if (req.user.role === 'admin') {
+            const updated = await Account.findOneAndUpdate(
+                { username },
+                req.body,
+                { new: true }
+            );
+
+            const { _id, password, __v, ...filtered } = updated.toObject();
+            return res.json({ message: 'Akun berhasil diperbarui oleh admin', updated: filtered });
+        }
+
+        // User biasa hanya boleh update akun miliknya sendiri dan tidak boleh update admin
+        if (req.user.role === 'user') {
+            if (req.user.username !== username || targetAccount.role === 'admin') {
+                return res.status(403).json({ message: 'Akses ditolak. Anda hanya bisa mengubah akun Anda sendiri.' });
+            }
+
+            const updated = await Account.findOneAndUpdate(
+                { username },
+                req.body,
+                { new: true }
+            );
+
+            const { _id, password, __v, ...filtered } = updated.toObject();
+            return res.json({ message: 'Akun Anda berhasil diperbarui', updated: filtered });
+        }
+
+        res.status(403).json({ message: 'Role tidak diizinkan' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
