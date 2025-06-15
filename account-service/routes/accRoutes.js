@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Account = require('../models/account');
-const { authorizeRoles } = require('../middleware/auth');
-const authenticateJWT = require('../middleware/auth');
+const authorizeRoles  = require('../../auth-service/middlewares/authorizeRoles');
+const verifyToken = require ('../../auth-service/middlewares/verifyToken');
 
 // Semua route butuh login
-router.use(authenticateJWT);
+router.use(verifyToken);
 
 // GET semua akun (admin only)
 router.get('/', authorizeRoles('admin'), async (req, res) => {
