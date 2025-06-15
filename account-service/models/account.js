@@ -23,4 +23,4 @@ const AccountSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('account', AccountSchema);
+module.exports = mongoose.model('users', AccountSchema);

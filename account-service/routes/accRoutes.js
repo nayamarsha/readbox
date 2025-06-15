@@ -10,7 +10,13 @@ router.use(verifyToken);
 // GET semua akun (admin only)
 router.get('/', authorizeRoles('admin'), async (req, res) => {
     try {
-        const accounts = await Account.find();
+        const accounts = await Account.find({}, {
+        _id: 0,         
+        id: 1,
+        username: 1,
+        email: 1,
+        role: 1
+    });
         res.json(accounts);
     } catch (error) {
         res.status(500).json({ message: error.message });
