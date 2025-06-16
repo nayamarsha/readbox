@@ -17,6 +17,7 @@ router.use(verifyToken);
 router.get('/get', async (req, res) => {
     try {
         const transactions = await Transaction.find();
+        const { _id, __v, ...filtered } = updated.toObject();
         res.json(transactions);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -30,6 +31,7 @@ router.get('/:id', async (req, res) => {
         if (!transaction) {
             return res.status(404).json({ message: 'Transaksi tidak ditemukan' });
         }
+        const { _id, __v, ...filtered } = updated.toObject();
         res.json(transaction);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -62,6 +64,8 @@ router.post('/post', async (req, res) => {
         { isAvailable: true }
         );
     }
+    
+        const { _id, __v, ...filtered } = updated.toObject();
         res.status(201).json(transaction);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -75,6 +79,8 @@ router.put('/:id', authorizeRoles('admin'), async (req, res) => {
         if (!updatedTransaction) {
             return res.status(404).json({ message: 'Transaksi tidak ditemukan' });
         }
+        
+        const { _id, __v, ...filtered } = updated.toObject();
         res.json({ message: 'Transaksi berhasil diperbarui', updatedTransaction });
     } catch (error) {
         res.status(500).json({ message: error.message });
