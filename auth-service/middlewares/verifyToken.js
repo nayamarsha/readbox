@@ -8,7 +8,7 @@ module.exports = function verifyToken(req, res, next) {
 
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) return res.status(403).json({ message: "Token tidak valid" });
-    req.user = decoded;   // { id, username, role }
+    req.user = decoded;   
     next();
   });
 };
