@@ -1,6 +1,6 @@
 // models/account.js
 const mongoose = require('mongoose');
-const Counter = require('./counter');
+const Counter = require('../../auth-service/models/counter');
 
 const AccountSchema = new mongoose.Schema({
   id: {
