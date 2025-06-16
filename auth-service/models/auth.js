@@ -1,20 +1,46 @@
 const mongoose = require("mongoose");
-const AutoIncrement = require("mongoose-sequence")(mongoose);
+const Counter = require("./counter");
 
-const authSchema = new mongoose.Schema(
-  {
-    id: Number,
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    role: { type: String, enum: ["admin", "user"], default: "user" }
+const AuthSchema = new mongoose.Schema({
+  accountId: {
+    type: String,
+    unique: true,
+    required: true
   },
-  {
-    timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
-    id: false
+  username: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  email: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  role: {
+    type: String,
+    enum: ["admin", "user"],
+    default: "user"
   }
-);
+}, {
+  timestamps: true
+});
 
-authSchema.plugin(AutoIncrement, { id: 'user_seq', inc_field: 'id' });
+// Pre-hook untuk generate ID seperti ACC0001
+AuthSchema.pre("validate", async function (next) {
+  if (this.isNew) {
+    const counter = await Counter.findByIdAndUpdate(
+      { _id: "accountId" },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    this.accountId = "ACC" + counter.seq.toString().padStart(4, "0");
+  }
+  next();
+});
 
-module.exports = mongoose.model("User", authSchema);
+module.exports = mongoose.model("users", AuthSchema);

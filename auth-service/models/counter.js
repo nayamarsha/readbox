@@ -6,4 +6,4 @@ const CounterSchema = new mongoose.Schema({
   seq: { type: Number, default: 0 }
 });
 
-module.exports = mongoose.model('AccountCounter', CounterSchema);
+module.exports = mongoose.model('AccCounter', CounterSchema);
