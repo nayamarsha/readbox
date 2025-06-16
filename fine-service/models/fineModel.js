@@ -18,7 +18,7 @@ const FineSchema = new mongoose.Schema({
     finePerDay: {
         type: Number,
         required: true,
-        default: 2000
+        default: 0
     },
     totalFine: {
         type: Number,
