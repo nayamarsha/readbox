@@ -77,19 +77,6 @@ router.post('/post', async (req, res) => {
     }
 });
 
-// PUT update transaksi (admin only)
-router.put('/:id', authorizeRoles('admin'), async (req, res) => {
-    try {
-        const updatedTransaction = await Transaction.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedTransaction) {
-            return res.status(404).json({ message: 'Transaksi tidak ditemukan' });
-        }
-        const { _id, __v, ...filtered } = updatedTransaction.toObject();
-        res.json({ message: 'Transaksi berhasil diperbarui', updatedTransaction: filtered });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
 
 // DELETE transaksi (admin only)
 router.delete('/:id', authorizeRoles('admin'), async (req, res) => {
