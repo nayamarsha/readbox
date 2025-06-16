@@ -44,7 +44,7 @@ router.post('/', authorizeRoles('admin'), async (req, res) => {
 //update buku untuk admin
 router.put('/:bookId', authorizeRoles('admin'), async (req, res) => {
     try {
-        const updateBook = await Book.findOneAndUpdate({ bookId: req.params.bookId }, req.body, { new: true });
+        const updateBook = await Book.findByOneAndUpdate({ bookId: req.params.bookId }, req.body, { new: true });
         if (!updateBook) {
             return res.status(404).json({ message: 'Buku tidak ditemukan' });
         }
@@ -57,7 +57,7 @@ router.put('/:bookId', authorizeRoles('admin'), async (req, res) => {
 //delete buku untuk admin
 router.delete('/:bookId', authorizeRoles('admin'), async (req, res) => {
     try {
-        const deleteBook = await Book.findOneAndDelete({ bookId: req.params.bookId });
+        const deleteBook = await Book.findByOneAndDelete({ bookId: req.params.bookId });
         if (!deleteBook) {
             return res.status(404).json({ message: 'Buku tidak ditemukan' });
         }

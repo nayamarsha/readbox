@@ -2,15 +2,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const fineRoutes = require('./routes/fineRoutes');
+require('dotenv').config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3009;
 
 app.use(bodyParser.json());
 
 app.use(fineRoutes);
 
-mongoose.connect('mongodb+srv://username_se2:password_username_se2@cluster0.qbaphou.mongodb.net/TugasAkhirSe2?retryWrites=true&w=majority')
+mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('Connected to MongoDB');
     })
@@ -21,3 +22,4 @@ mongoose.connect('mongodb+srv://username_se2:password_username_se2@cluster0.qbap
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
