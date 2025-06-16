@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Fungsi bantu untuk konversi UTC ke Waktu Lokal (misalnya WIB)
 function toLocalDate(dateUtc) {
-  const offset = 7 * 60 * 60 * 1000; // offset 7 jam (WIB)
+  const offset = 7 * 60 * 60 * 1000;
   return new Date(dateUtc.getTime() + offset);
 }
 
@@ -31,7 +31,7 @@ router.get('/fine/calculate/', verifyToken, authorizeRoles('admin'), async (req,
 
       if (totalFine > 0) {
         const updatedFine = await Fine.findOneAndUpdate(
-          { transactionId: transactions[i].transactionId },
+          { username: transactions[i].username },
           {
             $set: {
               username: transactions[i].username,
@@ -56,7 +56,7 @@ router.get('/fine/calculate/', verifyToken, authorizeRoles('admin'), async (req,
 });
 
 // USER: Hitung denda sendiri
-router.get('/fine/calculate/:username', verifyToken, authorizeRoles('user'), async (req, res) => {
+router.get('/fine/calculate/:username', verifyToken, authorizeRoles('admin', 'user'), async (req, res) => {
   try {
     const transaction = await Transaction.findOne({ username: req.params.username });
 
@@ -72,7 +72,7 @@ router.get('/fine/calculate/:username', verifyToken, authorizeRoles('user'), asy
     const status = totalFine > 0 ? 'unpaid' : 'no fine';
 
     const updatedFine = await Fine.findOneAndUpdate(
-      { transactionId: transaction.transactionId },
+      { username: transaction.username, transactionId: transaction.transactionId },
       {
         $set: {
           username: transaction.username,
@@ -106,10 +106,10 @@ router.post('/fine/payment', verifyToken, authorizeRoles('admin'), async (req, r
       return res.status(400).send({ message: 'Biaya denda tidak sesuai' });
     }
 
-    fine.status = 'paid';
-    await fine.save();
+    // Hapus data denda setelah dibayar
+    await Fine.deleteOne({ username: fine.username });
 
-    res.status(200).send({ message: 'Pembayaran denda berhasil' });
+    res.status(200).send({ message: 'Pembayaran denda berhasil dan data denda dihapus' });
   } catch (error) {
     console.error("Error saat pembayaran:", error);
     res.status(500).send(error);
