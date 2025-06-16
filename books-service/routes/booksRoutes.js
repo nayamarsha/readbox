@@ -10,7 +10,7 @@ router.use(verifyToken);
 //get buku untuk user dan admin
 router.get('/', async (req, res) => {
     try {
-        const books = await Book.find();
+        const books = await Book.find().select('bookId title author year genre isAvailable');
         res.json(books);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
 //user dan admin get buku berdasarkan id
 router.get('/:id', async (req, res) => {
     try {
-        const book = await Book.findById(req.params.id);
+        const book = await Book.findById(req.params.id).select('bookId title author year genre isAvailable');
         if (!book) {
             return res.status(404).json({ message: 'Buku tidak ditemukan' });
         }
