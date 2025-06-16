@@ -55,6 +55,7 @@ router.post('/post', async (req, res) => {
         const transaction = new Transaction(req.body);
         await transaction.save();
 
+        // Update status ketersediaan buku
         if (req.body.type === 'pinjam') {
             await Books.findOneAndUpdate(
                 { title: req.body.title },
