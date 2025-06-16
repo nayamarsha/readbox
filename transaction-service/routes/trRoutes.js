@@ -17,8 +17,12 @@ router.use(verifyToken);
 router.get('/get', async (req, res) => {
     try {
         const transactions = await Transaction.find();
-        const { _id, __v, ...filtered } = updated.toObject();
-        res.json(transactions);
+        // Filter out _id and __v from each transaction
+        const filteredTransactions = transactions.map(t => {
+            const { _id, __v, ...filtered } = t.toObject();
+            return filtered;
+        });
+        res.json(filteredTransactions);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -31,8 +35,8 @@ router.get('/:id', async (req, res) => {
         if (!transaction) {
             return res.status(404).json({ message: 'Transaksi tidak ditemukan' });
         }
-        const { _id, __v, ...filtered } = updated.toObject();
-        res.json(transaction);
+        const { _id, __v, ...filtered } = transaction.toObject();
+        res.json(filtered);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -60,14 +64,14 @@ router.post('/post', async (req, res) => {
         }
 
         if (req.body.type === 'pengembalian') {
-        await Books.findOneAndUpdate(
-        { title: req.body.title },
-        { isAvailable: true }
-        );
-    }
-    
-        const { _id, __v, ...filtered } = updated.toObject();
-        res.status(201).json(transaction);
+            await Books.findOneAndUpdate(
+                { title: req.body.title },
+                { isAvailable: true }
+            );
+        }
+
+        const { _id, __v, ...filtered } = transaction.toObject();
+        res.status(201).json(filtered);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -80,9 +84,8 @@ router.put('/:id', authorizeRoles('admin'), async (req, res) => {
         if (!updatedTransaction) {
             return res.status(404).json({ message: 'Transaksi tidak ditemukan' });
         }
-        
-        const { _id, __v, ...filtered } = updated.toObject();
-        res.json({ message: 'Transaksi berhasil diperbarui', updatedTransaction });
+        const { _id, __v, ...filtered } = updatedTransaction.toObject();
+        res.json({ message: 'Transaksi berhasil diperbarui', updatedTransaction: filtered });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
