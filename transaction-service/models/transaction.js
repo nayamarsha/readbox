@@ -25,7 +25,6 @@ const TransactionSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['pinjam', 'pengembalian','perpanjang'], 
         required: true
     }
 }, 

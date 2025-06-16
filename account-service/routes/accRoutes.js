@@ -4,7 +4,6 @@ const Account = require('../models/account');
 const authorizeRoles  = require('../../auth-service/middlewares/authorizeRoles');
 const verifyToken = require ('../../auth-service/middlewares/verifyToken');
 
-// Semua route butuh login
 router.use(verifyToken);
 
 // GET semua akun (admin only)
@@ -24,17 +23,17 @@ router.get('/', authorizeRoles('admin'), async (req, res) => {
     }
 });
 
-// GET satu akun by username (hanya admin atau user itu sendiri)
+// GET satu akun by username (admin atau user tsb)
 router.get('/:username', verifyToken, async (req, res) => {
     try {
         const { username } = req.params;
 
-        // Cek hak akses: jika bukan admin dan bukan user yang sama → tolak
+        // cek hak akses
         if (req.user.role !== 'admin' && req.user.username !== username) {
-            return res.status(403).json({ message: 'Akses ditolak' });
+            return res.status(403).json({ message: 'Akses ditolak.' });
         }
 
-        // Cari akun berdasarkan username dan tampilkan field tertentu saja
+        // field yang ditampilkan
         const account = await Account.findOne(
             { username },
             {
@@ -47,30 +46,27 @@ router.get('/:username', verifyToken, async (req, res) => {
             }
         );
 
-        // Jika tidak ditemukan
         if (!account) {
-            return res.status(404).json({ message: 'Akun tidak ditemukan' });
+            return res.status(404).json({ message: 'Akun tidak ditemukan.' });
         }
 
-        // Kirim data akun
         res.json(account);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// PUT update akun by username (admin atau user sendiri)
+// PUT update akun by username (admin atau user tsb)
 router.put('/:username', verifyToken, async (req, res) => {
     try {
         const { username } = req.params;
 
-        // Cari akun target berdasarkan username
         const targetAccount = await Account.findOne({ username });
         if (!targetAccount) {
-            return res.status(404).json({ message: 'Akun tidak ditemukan' });
+            return res.status(404).json({ message: 'Akun tidak ditemukan.' });
         }
-
-        // Admin boleh update akun siapa saja
+        
+        // cek hak akses
         if (req.user.role === 'admin') {
             const updated = await Account.findOneAndUpdate(
                 { username },
@@ -79,10 +75,9 @@ router.put('/:username', verifyToken, async (req, res) => {
             );
 
             const { _id, password, __v, ...filtered } = updated.toObject();
-            return res.json({ message: 'Akun berhasil diperbarui oleh admin', updated: filtered });
+            return res.json({ message: 'Akun berhasil diperbarui oleh admin.', updated: filtered });
         }
 
-        // User biasa hanya boleh update akun miliknya sendiri dan tidak boleh update admin
         if (req.user.role === 'user') {
             if (req.user.username !== username || targetAccount.role === 'admin') {
                 return res.status(403).json({ message: 'Akses ditolak. Anda hanya bisa mengubah akun Anda sendiri.' });
@@ -98,7 +93,7 @@ router.put('/:username', verifyToken, async (req, res) => {
             return res.json({ message: 'Akun Anda berhasil diperbarui', updated: filtered });
         }
 
-        res.status(403).json({ message: 'Role tidak diizinkan' });
+        res.status(403).json({ message: 'Role tidak diizinkan.' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -109,9 +104,9 @@ router.delete('/:id', authorizeRoles('admin'), async (req, res) => {
     try {
         const deleted = await Account.findOneAndDelete({ id: parseInt(req.params.id) });
         if (!deleted) {
-            return res.status(404).json({ message: 'Akun tidak ditemukan' });
+            return res.status(404).json({ message: 'Akun tidak ditemukan.' });
         }
-        res.json({ message: 'Akun berhasil dihapus' });
+        res.json({ message: 'Akun berhasil dihapus.' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
