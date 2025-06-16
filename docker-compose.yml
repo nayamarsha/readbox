@@ -63,7 +63,7 @@ services:
 
   gateway-service:
     build:
-      context: ./gateway-service
+      context: .
       dockerfile: dockerfile
     container_name: gateway-service
     ports:
