@@ -30,7 +30,7 @@ const AuthSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Pre-hook untuk generate ID seperti ACC0001
+// pre-hook untuk generate ID cth: ACC0001
 AuthSchema.pre("validate", async function (next) {
   if (this.isNew) {
     const counter = await Counter.findByIdAndUpdate(

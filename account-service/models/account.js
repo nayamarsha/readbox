@@ -30,7 +30,7 @@ const AccountSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Auto-generate id seperti ACC0001
+// auto-generate id cth: ACC0001
 AccountSchema.pre('validate', async function (next) {
   if (this.isNew) {
     const counter = await Counter.findByIdAndUpdate(
