@@ -17,12 +17,8 @@ router.use(verifyToken);
 router.get('/get', async (req, res) => {
     try {
         const transactions = await Transaction.find();
-        // Filter out _id and __v from each transaction
-        const filteredTransactions = transactions.map(t => {
-            const { _id, __v, ...filtered } = t.toObject();
-            return filtered;
-        });
-        res.json(filteredTransactions);
+        const { _id, __v, ...filtered } = updated.toObject();
+        res.json(transactions);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -35,8 +31,8 @@ router.get('/:id', async (req, res) => {
         if (!transaction) {
             return res.status(404).json({ message: 'Transaksi tidak ditemukan' });
         }
-        const { _id, __v, ...filtered } = transaction.toObject();
-        res.json(filtered);
+        const { _id, __v, ...filtered } = updated.toObject();
+        res.json(transaction);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -55,7 +51,7 @@ router.post('/post', async (req, res) => {
         const transaction = new Transaction(req.body);
         await transaction.save();
 
-        if (req.body.type === 'pinjam') {
+         if (req.body.type === 'pinjam') {
             await Books.findOneAndUpdate(
                 { title: req.body.title },
                 { isAvailable: false }
@@ -63,14 +59,14 @@ router.post('/post', async (req, res) => {
         }
 
         if (req.body.type === 'pengembalian') {
-            await Books.findOneAndUpdate(
-                { title: req.body.title },
-                { isAvailable: true }
-            );
-        }
-
-        const { _id, __v, ...filtered } = transaction.toObject();
-        res.status(201).json(filtered);
+        await Books.findOneAndUpdate(
+        { title: req.body.title },
+        { isAvailable: true }
+        );
+    }
+    
+        const { _id, __v, ...filtered } = updated.toObject();
+        res.status(201).json(transaction);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -83,8 +79,9 @@ router.put('/:id', authorizeRoles('admin'), async (req, res) => {
         if (!updatedTransaction) {
             return res.status(404).json({ message: 'Transaksi tidak ditemukan' });
         }
-        const { _id, __v, ...filtered } = updatedTransaction.toObject();
-        res.json({ message: 'Transaksi berhasil diperbarui', updatedTransaction: filtered });
+        
+        const { _id, __v, ...filtered } = updated.toObject();
+        res.json({ message: 'Transaksi berhasil diperbarui', updatedTransaction });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
