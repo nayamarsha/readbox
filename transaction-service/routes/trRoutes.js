@@ -2,14 +2,15 @@ const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/transaction');
 const Books = require('../../books-service/models/books');
-const authorizeRoles  = require('../../auth-service/middlewares/authorizeRoles');
-const verifyToken = require ('../../auth-service/middlewares/verifyToken');
+const authorizeRoles = require('../../auth-service/middlewares/authorizeRoles');
+const verifyToken = require('../../auth-service/middlewares/verifyToken');
 
 // Middleware untuk mengecek ketersediaan buku
 async function isBookAvailable(title) {
     const book = await Books.findOne({ title });
     return book && book.isAvailable;
 }
+
 // Login untuk mengakses routes (jwt)
 router.use(verifyToken);
 
@@ -28,10 +29,10 @@ router.get('/get', async (req, res) => {
     }
 });
 
-// GET transaksi spesifik berdasarkan id (admin & user)
-router.get('/:id', async (req, res) => {
+// GET transaksi spesifik berdasarkan transactionId (admin & user)
+router.get('/:transactionId', async (req, res) => {
     try {
-        const transaction = await Transaction.findById(req.params.id);
+        const transaction = await Transaction.findOne({ transactionId: req.params.transactionId });
         if (!transaction) {
             return res.status(404).json({ message: 'Transaksi tidak ditemukan' });
         }
@@ -52,6 +53,7 @@ router.post('/post', async (req, res) => {
                 return res.status(400).json({ message: 'Buku tidak tersedia.' });
             }
         }
+
         const transaction = new Transaction(req.body);
         await transaction.save();
 
@@ -77,11 +79,10 @@ router.post('/post', async (req, res) => {
     }
 });
 
-
 // DELETE transaksi (admin only)
-router.delete('/:id', authorizeRoles('admin'), async (req, res) => {
+router.delete('/:transactionId', authorizeRoles('admin'), async (req, res) => {
     try {
-        const deletedTransaction = await Transaction.findByIdAndDelete(req.params.id);
+        const deletedTransaction = await Transaction.findOneAndDelete({ transactionId: req.params.transactionId });
         if (!deletedTransaction) {
             return res.status(404).json({ message: 'Transaksi tidak ditemukan' });
         }

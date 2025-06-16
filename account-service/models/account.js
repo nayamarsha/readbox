@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Counter = require('../../auth-service/models/counter');
 
 const AccountSchema = new mongoose.Schema({
-  id: {
+  accountid: {
     type: String,
     unique: true,
     required: true

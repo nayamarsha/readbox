@@ -12,6 +12,7 @@ router.get('/', authorizeRoles('admin'), async (req, res) => {
         const accounts = await Account.find({}, {
         _id: 0,         
         id: 1,
+        accountId: 1,
         username: 1,
         email: 1,
         role: 1,
@@ -38,7 +39,7 @@ router.get('/:username', verifyToken, async (req, res) => {
             { username },
             {
                 _id: 0,          
-                id: 1,
+                accountId: 1,
                 username: 1,
                 email: 1,
                 role: 1,
@@ -100,9 +101,9 @@ router.put('/:username', verifyToken, async (req, res) => {
 });
 
 // DELETE akun (admin only)
-router.delete('/:id', authorizeRoles('admin'), async (req, res) => {
+router.delete('/:accountId', authorizeRoles('admin'), async (req, res) => {
     try {
-        const deleted = await Account.findOneAndDelete({ id: parseInt(req.params.id) });
+        const deleted = await Account.findOneAndDelete({ accountId:(req.params.accountId) });
         if (!deleted) {
             return res.status(404).json({ message: 'Akun tidak ditemukan.' });
         }
@@ -111,6 +112,7 @@ router.delete('/:id', authorizeRoles('admin'), async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
 
 
 module.exports = router;
