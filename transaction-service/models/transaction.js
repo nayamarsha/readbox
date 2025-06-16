@@ -17,7 +17,8 @@ const TransactionSchema = new mongoose.Schema({
     },
     borrowDate: {
         type: Date,
-        required: true
+        required: true,
+        default: Date.now
     },
     returnDate: {
         type: Date,
@@ -27,10 +28,8 @@ const TransactionSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-}, 
-{
-    timestamps: true
-});
+}
+);
 
 // Auto generate untuk transactionID
 TransactionSchema.pre('validate', async function(next) {
