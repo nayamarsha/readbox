@@ -7,9 +7,6 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT ;
 
-console.log('PORT:', process.env.PORT);
-console.log('JWT_SECRET:', process.env.JWT_SECRET);
-// ...existing code...
 app.use(bodyParser.json());
 
 app.use(fineRoutes);
